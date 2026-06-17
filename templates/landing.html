@@ -24,7 +24,7 @@
         </p>
         <div class="lp-actions">
             <a href="{{ url_for('register') }}" class="lp-btn">Create free account</a>
-            <a href="#" class="lp-btn">See how it works</a>
+            <a href="#" class="lp-btn" id="lpHowItWorksBtn">See how it works</a>
         </div>
 
         <div class="lp-preview">
@@ -72,6 +72,16 @@
             </div>
         </div>
     </div>
+
+    <div class="lp-modal-overlay" id="lpModalOverlay" hidden>
+        <div class="lp-modal">
+            <button type="button" class="lp-modal-close" id="lpModalClose" aria-label="Close">&times;</button>
+            <div class="lp-modal-video">
+                <iframe id="lpModalVideo" src="" title="How Spendly works"
+                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section class="features">
@@ -102,4 +112,33 @@
     </div>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var trigger = document.getElementById('lpHowItWorksBtn');
+    var overlay = document.getElementById('lpModalOverlay');
+    var closeBtn = document.getElementById('lpModalClose');
+    var video = document.getElementById('lpModalVideo');
+    var videoSrc = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+
+    function openModal(e) {
+        e.preventDefault();
+        video.src = videoSrc + '?autoplay=1';
+        overlay.hidden = false;
+    }
+
+    function closeModal() {
+        overlay.hidden = true;
+        video.src = '';
+    }
+
+    trigger.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeModal();
+    });
+})();
+</script>
 {% endblock %}
