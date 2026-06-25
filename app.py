@@ -3,6 +3,12 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db, get_user_by_email, create_user
+from database.queries import (
+    get_user_by_id,
+    get_summary_stats,
+    get_recent_transactions,
+    get_category_breakdown,
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
@@ -100,38 +106,21 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    user = {
-        "name": "Priya Sharma",
-        "email": "priya@example.com",
-        "member_since": "January 2024",
-        "initials": "PS",
-    }
-    stats = {
-        "total_spent": "32,847.50",
-        "transaction_count": 24,
-        "top_category": "Food",
-    }
-    transactions = [
-        {"date": "25 Jun 2025", "description": "Swiggy order — dinner",     "category": "Food",          "amount": "648.00"},
-        {"date": "23 Jun 2025", "description": "Ola cab to airport",         "category": "Transport",     "amount": "1,240.00"},
-        {"date": "20 Jun 2025", "description": "Airtel broadband bill",      "category": "Bills",         "amount": "999.00"},
-        {"date": "18 Jun 2025", "description": "Apollo pharmacy",            "category": "Health",        "amount": "380.50"},
-        {"date": "15 Jun 2025", "description": "Inox movie tickets",         "category": "Entertainment", "amount": "750.00"},
-        {"date": "12 Jun 2025", "description": "Myntra — kurta set",         "category": "Shopping",      "amount": "2,199.00"},
-        {"date": "10 Jun 2025", "description": "Big Bazaar groceries",       "category": "Food",          "amount": "3,412.00"},
-        {"date": "07 Jun 2025", "description": "Auto fare — daily commute",  "category": "Transport",     "amount": "320.00"},
-        {"date": "05 Jun 2025", "description": "Electricity bill — MSEDCL", "category": "Bills",         "amount": "1,842.00"},
-        {"date": "02 Jun 2025", "description": "PM Cares donation",          "category": "Other",         "amount": "500.00"},
-    ]
-    categories = [
-        {"name": "Food",          "slug": "food",          "amount": "11,240.00", "bar_class": "bar-w-68"},
-        {"name": "Bills",         "slug": "bills",         "amount": "8,320.00",  "bar_class": "bar-w-50"},
-        {"name": "Shopping",      "slug": "shopping",      "amount": "5,980.00",  "bar_class": "bar-w-36"},
-        {"name": "Transport",     "slug": "transport",     "amount": "4,210.00",  "bar_class": "bar-w-25"},
-        {"name": "Entertainment", "slug": "entertainment", "amount": "1,620.00",  "bar_class": "bar-w-10"},
-        {"name": "Health",        "slug": "health",        "amount": "920.00",    "bar_class": "bar-w-06"},
-        {"name": "Other",         "slug": "other",         "amount": "557.50",    "bar_class": "bar-w-03"},
-    ]
+    user_id = session["user_id"]
+
+    # ── AGENT 2 SECTION BEGIN (user + stats) ─────────────────────── #
+    user = get_user_by_id(user_id)
+    stats = get_summary_stats(user_id)
+    # ── AGENT 2 SECTION END ──────────────────────────────────────── #
+
+    # ── AGENT 1 SECTION BEGIN (transactions) ─────────────────────── #
+    transactions = get_recent_transactions(user_id)
+    # ── AGENT 1 SECTION END ──────────────────────────────────────── #
+
+    # ── AGENT 3 SECTION BEGIN (categories) ───────────────────────── #
+    categories = get_category_breakdown(user_id)
+    # ── AGENT 3 SECTION END ──────────────────────────────────────── #
+
     return render_template("profile.html", user=user, stats=stats,
                            transactions=transactions, categories=categories)
 
