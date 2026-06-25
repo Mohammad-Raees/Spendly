@@ -127,6 +127,13 @@ a { color: inherit; text-decoration: none; }
     color: var(--paper) !important;
 }
 
+.nav-active {
+    color: var(--ink) !important;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 2px;
+}
+
 /* ------------------------------------------------------------------ */
 /* Main                                                                */
 /* ------------------------------------------------------------------ */
@@ -588,4 +595,92 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 600px) {
     .nav-links a:not(.nav-cta) { display: none; }
     .hero { padding: 3rem 1rem 2rem; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Analytics page                                                      */
+/* ------------------------------------------------------------------ */
+
+.analytics-section {
+    min-height: calc(100vh - 60px - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+}
+
+.analytics-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.07);
+    padding: 3rem 2.5rem;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+}
+
+.analytics-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--accent);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+}
+
+.analytics-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+}
+
+.analytics-title {
+    font-family: var(--font-body);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.analytics-subtitle {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    max-width: 320px;
+    margin: 0;
+}
+
+.analytics-dots {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+    margin-top: 0.25rem;
+}
+
+.analytics-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ink);
+}
+
+.analytics-caption {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin: 0;
 }

@@ -20,7 +20,8 @@
             </a>
             <div class="nav-links">
                 {% if session.user_id %}
-                    <a href="{{ url_for('profile') }}" class="nav-profile">Profile</a>
+                    <a href="{{ url_for('analytics') }}" class="{% if request.endpoint == 'analytics' %}nav-active{% endif %}">Analytics</a>
+                    <a href="{{ url_for('profile') }}" class="nav-profile {% if request.endpoint == 'profile' %}nav-active-profile{% endif %}">Profile</a>
                     <a href="{{ url_for('logout') }}">Sign out</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">Sign in</a>
