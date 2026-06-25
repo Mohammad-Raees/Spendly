@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Add Expense — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add-expense.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container add-expense-container">
+
+        <div class="auth-header">
+            <h1 class="auth-title">Add Expense</h1>
+            <p class="auth-subtitle">Record a new transaction to your account</p>
+        </div>
+
+        <div class="auth-card">
+            {% if error %}
+            <div class="auth-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('add_expense') }}">
+
+                <div class="form-group">
+                    <label class="form-label" for="amount">Amount (₹)</label>
+                    <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        class="form-input"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0.01"
+                        value="{{ amount or '' }}"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="category">Category</label>
+                    <select id="category" name="category" class="form-input form-select" required>
+                        <option value="" disabled {% if not category %}selected{% endif %}>Select a category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="date">Date</label>
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        class="form-input"
+                        value="{{ date or today }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">Description <span class="form-optional">(optional)</span></label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        class="form-input form-textarea"
+                        placeholder="e.g. Lunch at café"
+                        maxlength="200"
+                    >{{ description or '' }}</textarea>
+                </div>
+
+                <div class="add-expense-actions">
+                    <button type="submit" class="btn-submit">Save Expense</button>
+                    <a href="{{ url_for('profile') }}" class="add-expense-cancel">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
