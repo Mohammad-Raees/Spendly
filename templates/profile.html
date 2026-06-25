@@ -57,6 +57,37 @@
       </div>
     </div>
 
+    <!-- Date filter -->
+    <form class="date-filter-form" method="get" action="{{ url_for('profile') }}">
+      <div class="date-filter-quick">
+        <button class="btn-quick-filter" type="button" data-range="this-month">This month</button>
+        <button class="btn-quick-filter" type="button" data-range="3-months">3 months</button>
+        <button class="btn-quick-filter" type="button" data-range="6-months">6 months</button>
+      </div>
+      <div class="date-filter-fields">
+        <div class="form-group">
+          <label for="date_from">From</label>
+          <input class="form-input" type="date" id="date_from" name="date_from"
+                 value="{{ date_from or '' }}">
+        </div>
+        <div class="form-group">
+          <label for="date_to">To</label>
+          <input class="form-input" type="date" id="date_to" name="date_to"
+                 value="{{ date_to or '' }}">
+        </div>
+        <button class="btn-primary" type="submit">Apply</button>
+        <a class="btn-ghost" href="{{ url_for('profile') }}">Clear</a>
+      </div>
+    </form>
+
+    {% if date_from or date_to %}
+    <div class="date-filter-banner">
+      Showing
+      {% if date_from %}from {{ date_from_display }}{% endif %}
+      {% if date_to %}to {{ date_to_display }}{% endif %}
+    </div>
+    {% endif %}
+
     <!-- Transaction history -->
     <div class="profile-card">
       <div class="profile-card-header">
@@ -121,4 +152,37 @@
 {% block scripts %}
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>lucide.createIcons();</script>
+<script>
+(function () {
+  function toISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  document.querySelectorAll('.btn-quick-filter').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const today = new Date();
+      let from;
+
+      if (btn.dataset.range === 'this-month') {
+        from = new Date(today.getFullYear(), today.getMonth(), 1);
+      } else if (btn.dataset.range === '3-months') {
+        from = new Date(today);
+        from.setMonth(from.getMonth() - 3);
+      } else if (btn.dataset.range === '6-months') {
+        from = new Date(today);
+        from.setMonth(from.getMonth() - 6);
+      } else {
+        return;
+      }
+
+      document.getElementById('date_from').value = toISO(from);
+      document.getElementById('date_to').value   = toISO(today);
+      btn.closest('form').submit();
+    });
+  });
+}());
+</script>
 {% endblock %}

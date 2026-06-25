@@ -15,6 +15,22 @@ _BAR_CLASSES = [
 ]
 
 
+def _date_where(user_id, date_from, date_to):
+    """Return (where_clause, params) for filtering expenses by user and optional date range."""
+    where = "WHERE user_id = ?"
+    params = [user_id]
+    if date_from and date_to:
+        where += " AND date BETWEEN ? AND ?"
+        params.extend([date_from, date_to])
+    elif date_from:
+        where += " AND date >= ?"
+        params.append(date_from)
+    elif date_to:
+        where += " AND date <= ?"
+        params.append(date_to)
+    return where, params
+
+
 # ── AGENT 2 BEGIN (User Info + Stats) ────────────────────────────── #
 
 def get_user_by_id(user_id):
@@ -45,19 +61,22 @@ def get_user_by_id(user_id):
         db.close()
 
 
-def get_summary_stats(user_id):
+def get_summary_stats(user_id, date_from=None, date_to=None):
     """Return {total_spent, transaction_count, top_category}."""
     db = get_db()
     try:
+        where, params = _date_where(user_id, date_from, date_to)
         row = db.execute(
-            "SELECT COALESCE(SUM(amount), 0.0) AS total, COUNT(*) AS tx_count FROM expenses WHERE user_id = ?",
-            (user_id,)
+            "SELECT COALESCE(SUM(amount), 0.0) AS total, COUNT(*) AS tx_count"
+            " FROM expenses " + where,
+            params
         ).fetchone()
         total = row["total"]
         tx_count = row["tx_count"]
         cat_row = db.execute(
-            "SELECT category FROM expenses WHERE user_id = ? GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
-            (user_id,)
+            "SELECT category FROM expenses " + where +
+            " GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
+            params
         ).fetchone()
         top_category = cat_row["category"] if cat_row else "—"
         return {
@@ -73,17 +92,18 @@ def get_summary_stats(user_id):
 
 # ── AGENT 1 BEGIN (Transaction History) ──────────────────────────── #
 
-def get_recent_transactions(user_id, limit=10):
+def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     """Return up to `limit` expenses newest-first as list of dicts."""
     db = get_db()
     try:
+        where, params = _date_where(user_id, date_from, date_to)
         rows = db.execute(
             "SELECT date, description, category, amount"
-            " FROM expenses"
-            " WHERE user_id = ?"
+            " FROM expenses "
+            + where +
             " ORDER BY date DESC, id DESC"
             " LIMIT ?",
-            (user_id, limit),
+            (*params, limit),
         ).fetchall()
         return [
             {
@@ -102,17 +122,18 @@ def get_recent_transactions(user_id, limit=10):
 
 # ── AGENT 3 BEGIN (Category Breakdown) ───────────────────────────── #
 
-def get_category_breakdown(user_id):
+def get_category_breakdown(user_id, date_from=None, date_to=None):
     """Return per-category totals with pct and bar_class, ordered by amount DESC."""
     db = get_db()
     try:
+        where, params = _date_where(user_id, date_from, date_to)
         rows = db.execute(
             "SELECT category, SUM(amount) AS total"
-            " FROM expenses"
-            " WHERE user_id = ?"
+            " FROM expenses "
+            + where +
             " GROUP BY category"
             " ORDER BY total DESC",
-            (user_id,),
+            params,
         ).fetchall()
 
         grand_total = sum(r["total"] for r in rows)

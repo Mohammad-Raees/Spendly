@@ -311,6 +311,61 @@
 .bar-w-03 { width: 3%;  }
 
 
+/* ── Date filter ────────────────────────────────────────────────────── */
+
+.date-filter-form {
+    margin-bottom: 1.25rem;
+}
+
+.date-filter-quick {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.btn-quick-filter {
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--paper-card);
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.btn-quick-filter:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.date-filter-fields {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.date-filter-fields .form-group {
+    margin-bottom: 0;
+    flex: 1 1 140px;
+}
+
+.date-filter-banner {
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    font-size: 0.85rem;
+    padding: 0.5rem 0.875rem;
+    margin-bottom: 1rem;
+}
+
+
+
 /* ── Responsive ─────────────────────────────────────────────────────── */
 
 @media (max-width: 700px) {
