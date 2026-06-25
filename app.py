@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,6 +13,22 @@ from database.queries import (
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
+
+
+def _parse_date(value):
+    if not value:
+        return None
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+        return value
+    except ValueError:
+        return None
+
+
+def _format_date_display(value):
+    if not value:
+        return None
+    return datetime.strptime(value, "%Y-%m-%d").strftime("%d %b %Y")
 
 with app.app_context():
     init_db()
@@ -108,21 +125,39 @@ def profile():
 
     user_id = session["user_id"]
 
+    date_from = _parse_date(request.args.get("date_from", ""))
+    date_to   = _parse_date(request.args.get("date_to",   ""))
+
+    if date_from and date_to and date_from > date_to:
+        date_from, date_to = date_to, date_from
+
+    date_from_display = _format_date_display(date_from)
+    date_to_display   = _format_date_display(date_to)
+
     # ── AGENT 2 SECTION BEGIN (user + stats) ─────────────────────── #
     user = get_user_by_id(user_id)
-    stats = get_summary_stats(user_id)
+    stats = get_summary_stats(user_id, date_from=date_from, date_to=date_to)
     # ── AGENT 2 SECTION END ──────────────────────────────────────── #
 
     # ── AGENT 1 SECTION BEGIN (transactions) ─────────────────────── #
-    transactions = get_recent_transactions(user_id)
+    transactions = get_recent_transactions(user_id, date_from=date_from, date_to=date_to)
     # ── AGENT 1 SECTION END ──────────────────────────────────────── #
 
     # ── AGENT 3 SECTION BEGIN (categories) ───────────────────────── #
-    categories = get_category_breakdown(user_id)
+    categories = get_category_breakdown(user_id, date_from=date_from, date_to=date_to)
     # ── AGENT 3 SECTION END ──────────────────────────────────────── #
 
-    return render_template("profile.html", user=user, stats=stats,
-                           transactions=transactions, categories=categories)
+    return render_template(
+        "profile.html",
+        user=user,
+        stats=stats,
+        transactions=transactions,
+        categories=categories,
+        date_from=date_from,
+        date_to=date_to,
+        date_from_display=date_from_display,
+        date_to_display=date_to_display,
+    )
 
 
 @app.route("/expenses/add")
